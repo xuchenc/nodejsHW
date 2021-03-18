@@ -3,18 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "task1": "nodemon module2/task1.js",
     "task2": "nodemon module2/task2.js",
-    "task3": "nodemon index.js"
+    "task3": "nodemon module2/task3.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.13.10",
+    "@babel/core": "^7.13.10",
+    "@babel/preset-env": "^7.13.10",
     "nodemon": "^2.0.7"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
     "csvtojson": "^2.0.10"
   }
 }
