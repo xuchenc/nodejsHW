@@ -1,4 +1,3 @@
-// const express = require('express')
 import express from 'express'
 import Joi from 'joi'
 const app = express()
@@ -23,24 +22,27 @@ const users = [
 
 app.use(express.json())
 
+//GET
 app.get('/user',(req,res)=>{
   res.send(users)
 })
 
+//GET by id
 app.get('/user/:id', (req, res) => {
-
   const user = users.find(e => e.id === req.params.id)
   // console.log('user~~~~~~~~', user)
   if (!user) {
-    //404
     res.status(404).send("所查询的用户ID不存在！");
+    return;
   } else {
     res.send(user)
   }
 })
 
+//POST
 app.post('/user/',(req,res)=>{
-  const schema = Joi.object({
+  // console.log('req!!!!', req)
+  const schema = Joi.object().keys({
     login: Joi.string().required(),
     password: Joi.string().required(),
     age: Joi.number().required(),
@@ -50,33 +52,71 @@ app.post('/user/',(req,res)=>{
   console.log('result!!!', result)
   if(result.error){
     res.status(400).send(result.error.details[0].message);
+    return;
   }
   const user = {
     'id': (users.length + 1).toString(),
-    'login': req.body.login,
+    'login': req.body.login, 
     'password': req.body.password,
     'age': req.body.age,
     'isDeleted': req.body.isDeleted
   }
-  console.log('new item', user)
+  // console.log('new item', user)
   users.push(user);
-  console.log('new array', users)
+  // console.log('new array', users)
   res.send(user);
 })
 
+//PUT
+app.put('/user/:id',(req,res)=>{
+  const user = users.find(e => e.id === req.params.id );
+  console.log('user', user)
+  if (!user) {
+      res.status(404).send("给定的用户ID不存在！");
+  } else {
+      res.send(user);
+  }
+  //验证
+  // const result = validateUser(req.body);
+  // if(result.error){
+  //     res.status(400).send(result.error.details[0].message);
+  //     return;
+  // };
 
+  console.log('req~~~', req.body)
 
+  user.login = req.body.login;
+  user.password = req.body.password;
+  user.age = req.body.age;
+  user.isDeleted = req.body.isDeleted;
+
+  res.send(user);
+})
+
+// function validateUser(user){
+//   const schema = {
+//     login:Joi.string().min(3).required()
+//   };
+//   return Joi.validate(user,schema);
+// }
+
+//DELETE
 app.delete('/user/:id',(req,res)=>{
-  //查找
   const user = users.find(e => e.id === req.params.id)
   if (!user) {
-    //404
-    res.status(404).send("给定的书籍ID不存在");
+    res.status(404).send("给定的用户ID不存在");
     return
   } else {
     res.send(user)
   }
-  
+  // console.log('req~~~~',user)
+  // if (user.isDeleted === false) {
+  //   user.isDeleted = true
+  //   res.send(user);
+  // } else {
+  //   res.status(405).send("给定的用户已删除过！");
+  //   return
+  // }
   const index = users.indexOf(user)
   users.splice(index,1)
   res.send(user)
