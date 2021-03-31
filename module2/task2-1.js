@@ -30,7 +30,6 @@ app.get('/user',(req,res)=>{
 //GET by id
 app.get('/user/:id', (req, res) => {
   const user = users.find(e => e.id === req.params.id)
-  // console.log('user~~~~~~~~', user)
   if (!user) {
     res.status(404).send("所查询的用户ID不存在！");
     return;
@@ -41,7 +40,6 @@ app.get('/user/:id', (req, res) => {
 
 //POST
 app.post('/user/',(req,res)=>{
-  // console.log('req!!!!', req)
   const schema = Joi.object().keys({
     login: Joi.string().required(),
     password: Joi.string().required(),
@@ -54,6 +52,15 @@ app.post('/user/',(req,res)=>{
     res.status(400).send(result.error.details[0].message);
     return;
   }
+  const reg = /^(\d+[a-zA-Z]+|[a-zA-Z]+\d+)([0-9a-zA-Z]*)$/;
+  if(!reg.test(result.value.password)) {
+    res.status(401).send("password必须为数字和字母！");
+    return;
+  }
+  if(result.value.age < 4 || result.value.age > 130) {
+    res.status(401).send("输入的必须在4-130之间！");
+    return;
+  }
   const user = {
     'id': (users.length + 1).toString(),
     'login': req.body.login, 
@@ -61,30 +68,43 @@ app.post('/user/',(req,res)=>{
     'age': req.body.age,
     'isDeleted': req.body.isDeleted
   }
-  // console.log('new item', user)
   users.push(user);
-  // console.log('new array', users)
   res.send(user);
 })
 
 //PUT
 app.put('/user/:id',(req,res)=>{
   const user = users.find(e => e.id === req.params.id );
-  console.log('user', user)
+  // console.log('user', user)
   if (!user) {
-      res.status(404).send("给定的用户ID不存在！");
-  } else {
-      res.send(user);
+    res.status(404).send("给定的用户ID不存在！");
+    return
   }
+
   //验证
-  // const result = validateUser(req.body);
-  // if(result.error){
-  //     res.status(400).send(result.error.details[0].message);
-  //     return;
-  // };
-
-  console.log('req~~~', req.body)
-
+  const schema = Joi.object().keys({
+    login: Joi.string().required(),
+    password: Joi.string().required(),
+    age: Joi.number().required(),
+    isDeleted: Joi.boolean().required()
+  })
+  const result = schema.validate(req.body)
+  // console.log('result!!!', result)
+  if(result.error){
+    res.status(400).send(result.error.details[0].message);
+    return;
+  }
+  // console.log('req~~~', req.body)
+  const reg = /^(\d+[a-zA-Z]+|[a-zA-Z]+\d+)([0-9a-zA-Z]*)$/;
+  if(!reg.test(req.body.password)) {
+    res.status(401).send("password必须为数字和字母！");
+    return;
+  }
+  if(req.body.age < 4 || req.body.age > 130) {
+    res.status(401).send("输入的必须在4-130之间！");
+    return;
+  }
+  
   user.login = req.body.login;
   user.password = req.body.password;
   user.age = req.body.age;
@@ -92,13 +112,6 @@ app.put('/user/:id',(req,res)=>{
 
   res.send(user);
 })
-
-// function validateUser(user){
-//   const schema = {
-//     login:Joi.string().min(3).required()
-//   };
-//   return Joi.validate(user,schema);
-// }
 
 //DELETE
 app.delete('/user/:id',(req,res)=>{
@@ -124,4 +137,4 @@ app.delete('/user/:id',(req,res)=>{
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
-})
+})                                 
