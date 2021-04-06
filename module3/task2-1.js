@@ -16,15 +16,52 @@ const users = [
     login: 'web2',
     password: '222222',
     age: 2,
+    isDeleted: true
+  },
+  {
+    id: '3',
+    login: 'web3',
+    password: '333333',
+    age: 3,
+    isDeleted: true
+  },
+  {
+    id: '4',
+    login: 'web4',
+    password: '444444',
+    age: 4,
+    isDeleted: true
+  },
+  {
+    id: '5',
+    login: 'web5',
+    password: '555555',
+    age: 5,
     isDeleted: false
   },
 ]
 
 app.use(express.json())
 
-//GET
+
+//GET by loginSubstring & limit
 app.get('/user',(req,res)=>{
-  res.send(users)
+  const loginSubstring = req.body.loginSubstring
+  const limit = req.body.limit
+  if (loginSubstring) {
+    const filterArray = users.filter((e) => e.login.includes(loginSubstring))
+    // console.log('filterArray!!!', filterArray.length)
+    if (limit && filterArray.length > limit) {
+      const newArray = filterArray.slice(0, limit)
+      // console.log('newArray!!!', newArray)
+      res.send(newArray)
+    } else {
+      // console.log('filterArray!!!', filterArray)
+      res.send(filterArray)
+    }
+  } else {
+    res.send(users)
+  }
 })
 
 //GET by id
@@ -47,7 +84,7 @@ app.post('/user/',(req,res)=>{
     isDeleted: Joi.boolean().required()
   })
   const result = schema.validate(req.body)
-  console.log('result!!!', result)
+  // console.log('result!!!', result)
   if(result.error){
     res.status(400).send(result.error.details[0].message);
     return;
@@ -119,20 +156,19 @@ app.delete('/user/:id',(req,res)=>{
   if (!user) {
     res.status(404).send("给定的用户ID不存在");
     return
-  } else {
-    res.send(user)
-  }
+  } 
   // console.log('req~~~~',user)
-  // if (user.isDeleted === false) {
-  //   user.isDeleted = true
-  //   res.send(user);
-  // } else {
-  //   res.status(405).send("给定的用户已删除过！");
-  //   return
-  // }
-  const index = users.indexOf(user)
-  users.splice(index,1)
-  res.send(user)
+  if (user.isDeleted === false) {
+    // const index = users.indexOf(user)
+    // users.splice(index,1)
+    // res.send(user)
+    user.isDeleted = true
+    res.status(200).send("删除success~");
+    // res.send(user)
+  } else {
+    res.status(408).send("给定的用户已删除过~");
+    return
+  }
 })
 
 app.listen(port, () => {

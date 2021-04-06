@@ -9,7 +9,7 @@
     "task1": "nodemon module2/task1.js",
     "task2": "nodemon module2/task2.js",
     "task3": "nodemon module2/task3.js",
-    "task2-1": "nodemon module2/task2-1.js"
+    "task2-1": "nodemon module3/task2-1.js"
   },
   "author": "",
   "license": "ISC",
